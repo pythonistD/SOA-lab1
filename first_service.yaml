@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: Dragon Management API
+  description: API для управления коллекцией объектов типа Dragon
+  version: 1.0.0
+paths:
+  /dragons:
+    get:
+      summary: Получить все объекты Dragon
+      responses:
+        '200':
+          description: Список объектов Dragon
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+                xml:
+                  name: dragons
+                  wrapped: true
+    post:
+      summary: Создать новый объект Dragon
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Dragon'
+      responses:
+        '201':
+          description: Объект Dragon создан
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Dragon'
+  
+  /dragons/{id}:
+    get:
+      summary: Получить объект Dragon по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Объект Dragon найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Dragon'
+        '404':
+          description: Объект Dragon не найден
+    put:
+      summary: Обновить объект Dragon по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Dragon'
+      responses:
+        '200':
+          description: Объект Dragon обновлен
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Dragon'
+        '404':
+          description: Объект Dragon не найден
+    delete:
+      summary: Удалить объект Dragon по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Объект Dragon удален
+        '404':
+          description: Объект Dragon не найден
+
+  /dragons/count:
+    get:
+      summary: Вернуть количество объектов Dragon с заданным количеством глаз у головы
+      parameters:
+        - in: query
+          name: eyesCount
+          schema:
+            type: number
+            format: double
+            nullable: true
+          description: Значение поля eyesCount у головы дракона (DragonHead). Поле может быть null.
+      responses:
+        '200':
+          description: Количество объектов Dragon с заданным значением eyesCount
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Количество объектов Dragon
+                xml:
+                  name: dragonCount
+        '400':
+          description: Неправильное значение параметра eyesCount
+
+  /dragons/countByColor:
+    get:
+      summary: Вернуть количество объектов Dragon с цветом больше заданного
+      parameters:
+        - in: query
+          name: color
+          schema:
+            $ref: '#/components/schemas/Color'
+          description: | 
+            Цвет дракона, начиная с которого производится подсчет. 
+            Цвета имеют упорядоченные значения: RED < BLACK < BLUE < WHITE.
+      responses:
+        '200':
+          description: Количество объектов Dragon с цветом больше заданного
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Количество объектов Dragon
+                xml:
+                  name: dragonCount
+        '400':
+          description: Неправильное значение параметра color
+
+  /dragons/searchByName:
+    get:
+      summary: Вернуть массив объектов Dragon, имя которых содержит заданную подстроку
+      parameters:
+        - in: query
+          name: substring
+          schema:
+            type: string
+            minLength: 1
+          required: true
+          description: Подстрока для поиска в поле name объектов Dragon. Подстрока не должна быть пустой.
+      responses:
+        '200':
+          description: Массив объектов Dragon, имя которых содержит заданную подстроку
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+                xml:
+                  name: dragons
+                  wrapped: true
+        '400':
+          description: Неправильное значение параметра substring
+
+components:
+  schemas:
+    Dragon:
+      type: object
+      xml:
+        name: dragon
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          readOnly: true
+          description: Значение должно генерироваться автоматически, уникально и больше 0.
+          xml:
+            attribute: true
+        name:
+          type: string
+          minLength: 1
+          description: Поле не может быть null или пустым.
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+          description: Поле не может быть null.
+        creationDate:
+          type: string
+          format: date
+          readOnly: true
+          description: Дата создания должна генерироваться автоматически.
+        age:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Возраст должен быть больше 0 или null.
+        wingspan:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Размах крыльев должен быть больше 0 или null.
+        speaking:
+          type: boolean
+        color:
+          $ref: '#/components/schemas/Color'
+          description: Поле не может быть null.
+        head:
+          $ref: '#/components/schemas/DragonHead'
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - color
+        - speaking
+
+    Coordinates:
+      type: object
+      xml:
+        name: coordinates
+      properties:
+        x:
+          type: integer
+          maximum: 411
+          description: Поле не может быть null и должно быть меньше или равно 411.
+          xml:
+            attribute: true
+        y:
+          type: number
+          format: double
+          minimum: -296
+          description: Поле не может быть null и должно быть больше -296.
+          xml:
+            attribute: true
+      required:
+        - x
+        - y
+
+    DragonHead:
+      type: object
+      xml:
+        name: head
+      properties:
+        eyesCount:
+          type: number
+          format: double
+          nullable: true
+          xml:
+            attribute: true
+
+    Color:
+      type: string
+      enum:
+        - RED
+        - BLACK
+        - BLUE
+        - WHITE
+      xml:
+        name: color
