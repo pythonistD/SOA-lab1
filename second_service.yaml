@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Dragon Management API
+  description: API для управления коллекцией объектов типа Dragon
+  version: 1.0.0
+paths:
+  /killer/dragon/find-by-cave-depth/{max-or-min}:
+    get:
+      summary: Найти дракона, живущего в самой глубокой (или мелкой) пещере
+      parameters:
+        - in: path
+          name: max-or-min
+          required: true
+          schema:
+            $ref: '#/components/schemas/CaveSize'
+      responses:
+        '200':
+          description: Объект Dragon
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Dragon'
+        '400':
+          description: Bag request
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+                
+  /killer/team/{team-id}/move-to-cave/{cave-id}:
+    get:
+      summary: Отправить команду убийц драконов в указанную пещеру
+      parameters:
+        - in: path
+          name: team-id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: cave-id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список объектов Dragon
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Количество объектов Dragon
+                xml:
+                  name: result
+        '400':
+          description: Bag request
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Dragon:
+      type: object
+      xml:
+        name: dragon
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          readOnly: true
+          description: Значение должно генерироваться автоматически, уникально и больше 0.
+          xml:
+            attribute: true
+        name:
+          type: string
+          minLength: 1
+          description: Поле не может быть null или пустым.
+        coordinates:
+          allOf:
+            - $ref: '#/components/schemas/Coordinates'
+            - description: Поле не может быть null.
+        creationDate:
+          type: string
+          format: date
+          readOnly: true
+          description: Дата создания должна генерироваться автоматически.
+        age:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Возраст должен быть больше 0 или null.
+        wingspan:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Размах крыльев должен быть больше 0 или null.
+        speaking:
+          type: boolean
+        color:
+          allOf:
+            - $ref: '#/components/schemas/Color'
+            - description: Поле не может быть null.
+        head:
+          $ref: '#/components/schemas/DragonHead'
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - color
+        - speaking
+
+    Coordinates:
+      type: object
+      xml:
+        name: coordinates
+      properties:
+        x:
+          type: integer
+          maximum: 411
+          description: Поле не может быть null и должно быть меньше или равно 411.
+          xml:
+            attribute: true
+        y:
+          type: number
+          format: double
+          minimum: -296
+          description: Поле не может быть null и должно быть больше -296.
+          xml:
+            attribute: true
+      required:
+        - x
+        - y
+
+    DragonHead:
+      type: object
+      xml:
+        name: head
+      properties:
+        eyesCount:
+          type: number
+          format: double
+          nullable: true
+          xml:
+            attribute: true
+
+    Color:
+      type: string
+      enum:
+        - RED
+        - BLACK
+        - BLUE
+        - WHITE
+      xml:
+        name: color
+        
+    CaveSize:
+      type: string
+      enum:
+        - MAX
+        - MIN
+      xml:
+        name: caveSize
