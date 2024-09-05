@@ -6,19 +6,140 @@ info:
 paths:
   /dragons:
     get:
-      summary: Получить все объекты Dragon
+      summary: Получить все объекты Dragon с поддержкой сортировки, фильтрации и постраничного вывода
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: array
+            items:
+              type: string
+              example: id-gt-5,name-eq-Draco,age-lte-100
+          style: form
+          explode: false
+          description: |
+            Набор фильтров для полей дракона в формате `поле-оператор-значение`, разделенные запятыми. 
+            Операторы:
+            - `eq`: равно
+            - `neq`: не равно
+            - `gt`: больше
+            - `gte`: больше или равно
+            - `lt`: меньше
+            - `lte`: меньше или равно
+            Примеры фильтров:
+            - `id-gt-5` (id больше 5)
+            - `name-eq-Draco` (имя равно Draco)
+            - `age-lte-100` (возраст меньше или равен 100)
+
+        - in: query
+          name: sort
+          schema:
+            type: array
+            items:
+              type: string
+              example: name-asc,age-desc
+          style: form
+          explode: false
+          description: |
+            Набор полей для сортировки в формате `поле-order`, разделенные запятыми. 
+            Возможные значения `order`: `asc` (по возрастанию) или `desc` (по убыванию).
+            Пример: `name-asc,age-desc` (сортировка по имени по возрастанию и по возрасту по убыванию).
+
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+          description: Номер страницы (по умолчанию 1)
+
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Количество элементов на странице (по умолчанию 10, максимум 100)
+
       responses:
         '200':
           description: Список объектов Dragon
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Dragon'
-                xml:
-                  name: dragons
-                  wrapped: true
+                $ref: '#/components/schemas/Dragons'
+              examples:
+                example1:
+                  value: |
+                    <dragons>
+                      <dragon>
+                        <id>1</id>
+                        <name>Draco</name>
+                        <coordinates>
+                          <x>10</x>
+                          <y>-5.5</y>
+                        </coordinates>
+                        <creationDate>2023-09-05</creationDate>
+                        <age>150</age>
+                        <wingspan>20</wingspan>
+                        <speaking>true</speaking>
+                        <color>RED</color>
+                        <head>
+                          <eyesCount>2.0</eyesCount>
+                        </head>
+                      </dragon>
+                      <dragon>
+                        <id>2</id>
+                        <name>Smaug</name>
+                        <coordinates>
+                          <x>20</x>
+                          <y>-10.5</y>
+                        </coordinates>
+                        <creationDate>2023-09-04</creationDate>
+                        <age>200</age>
+                        <wingspan>25</wingspan>
+                        <speaking>false</speaking>
+                        <color>BLACK</color>
+                        <head>
+                          <eyesCount>3.0</eyesCount>
+                        </head>
+                      </dragon>
+                      <dragon>
+                        <id>3</id>
+                        <name>Falkor</name>
+                        <coordinates>
+                          <x>15</x>
+                          <y>-2.0</y>
+                        </coordinates>
+                        <creationDate>2023-09-03</creationDate>
+                        <age>100</age>
+                        <wingspan>22</wingspan>
+                        <speaking>true</speaking>
+                        <color>WHITE</color>
+                        <head>
+                          <eyesCount>1.0</eyesCount>
+                        </head>
+                      </dragon>
+                    </dragons>
+        '400':
+          description: Неправильные параметры запроса. Проверьте фильтры, сортировку, номер страницы и размер.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidFilter:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Неправильный формат фильтра. Проверьте корректность параметра filter.</message>
+                    </error>
+                invalidSort:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Неправильный формат сортировки. Проверьте корректность параметра sort.</message>
+                    </error>
+
     post:
       summary: Создать новый объект Dragon
       requestBody:
@@ -34,7 +155,26 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Dragon'
-  
+        '400':
+          description: Ошибка в переданных данных (нарушены ограничения целостности). Убедитесь, что все обязательные поля заполнены корректно.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingField:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Отсутствует обязательное поле. Проверьте все обязательные поля в запросе.</message>
+                    </error>
+                invalidValue:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Некорректное значение одного из полей. Убедитесь, что все значения соответствуют ожидаемым типам и ограничениям.</message>
+                    </error>
+
   /dragons/{id}:
     get:
       summary: Получить объект Dragon по ID
@@ -53,7 +193,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Dragon'
         '404':
-          description: Объект Dragon не найден
+          description: Объект Dragon не найден по указанному ID.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value: |
+                    <error>
+                      <code>404</code>
+                      <message>Дракон с указанным ID не найден.</message>
+                    </error>
+
     put:
       summary: Обновить объект Dragon по ID
       parameters:
@@ -76,8 +228,39 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Dragon'
+        '400':
+          description: Ошибка в переданных данных (нарушены ограничения целостности). Проверьте значения всех полей.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidField:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Некорректные данные для обновления. Проверьте все поля и их значения.</message>
+                    </error>
+                missingField:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Отсутствует обязательное поле в запросе на обновление.</message>
+                    </error>
         '404':
-          description: Объект Dragon не найден
+          description: Объект Dragon не найден по указанному ID.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value: |
+                    <error>
+                      <code>404</code>
+                      <message>Дракон с указанным ID не найден.</message>
+                    </error>
+
     delete:
       summary: Удалить объект Dragon по ID
       parameters:
@@ -89,9 +272,20 @@ paths:
             minimum: 1
       responses:
         '204':
-          description: Объект Dragon удален
+          description: Объект Dragon успешно удален
         '404':
-          description: Объект Dragon не найден
+          description: Объект Dragon не найден по указанному ID.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value: |
+                    <error>
+                      <code>404</code>
+                      <message>Дракон с указанным ID не найден для удаления.</message>
+                    </error>
 
   /dragons/count:
     get:
@@ -117,8 +311,25 @@ paths:
                     description: Количество объектов Dragon
                 xml:
                   name: dragonCount
+              examples:
+                countResponse:
+                  value: |
+                    <dragonCount>
+                      <count>5</count>
+                    </dragonCount>
         '400':
-          description: Неправильное значение параметра eyesCount
+          description: Неправильное значение параметра eyesCount.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidEyesCount:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Некорректное значение для параметра eyesCount. Убедитесь, что значение соответствует ожидаемому формату.</message>
+                    </error>
 
   /dragons/countByColor:
     get:
@@ -128,7 +339,7 @@ paths:
           name: color
           schema:
             $ref: '#/components/schemas/Color'
-          description: | 
+          description: |
             Цвет дракона, начиная с которого производится подсчет. 
             Цвета имеют упорядоченные значения: RED < BLACK < BLUE < WHITE.
       responses:
@@ -144,8 +355,25 @@ paths:
                     description: Количество объектов Dragon
                 xml:
                   name: dragonCount
+              examples:
+                countResponse:
+                  value: |
+                    <dragonCount>
+                      <count>3</count>
+                    </dragonCount>
         '400':
-          description: Неправильное значение параметра color
+          description: Неправильное значение параметра color.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidColor:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Некорректное значение для параметра color. Убедитесь, что значение соответствует одному из допустимых цветов.</message>
+                    </error>
 
   /dragons/searchByName:
     get:
@@ -164,14 +392,57 @@ paths:
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Dragon'
-                xml:
-                  name: dragons
-                  wrapped: true
+                $ref: '#/components/schemas/Dragons'
+              examples:
+                searchResponse:
+                  value: |
+                    <dragons>
+                      <dragon>
+                        <id>1</id>
+                        <name>Draco</name>
+                        <coordinates>
+                          <x>10</x>
+                          <y>-5.5</y>
+                        </coordinates>
+                        <creationDate>2023-09-05</creationDate>
+                        <age>150</age>
+                        <wingspan>20</wingspan>
+                        <speaking>true</speaking>
+                        <color>RED</color>
+                        <head>
+                          <eyesCount>2.0</eyesCount>
+                        </head>
+                      </dragon>
+                      <dragon>
+                        <id>3</id>
+                        <name>Falkor</name>
+                        <coordinates>
+                          <x>15</x>
+                          <y>-2.0</y>
+                        </coordinates>
+                        <creationDate>2023-09-03</creationDate>
+                        <age>100</age>
+                        <wingspan>22</wingspan>
+                        <speaking>true</speaking>
+                        <color>WHITE</color>
+                        <head>
+                          <eyesCount>1.0</eyesCount>
+                        </head>
+                      </dragon>
+                    </dragons>
         '400':
-          description: Неправильное значение параметра substring
+          description: Неправильное значение параметра substring.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidSubstring:
+                  value: |
+                    <error>
+                      <code>400</code>
+                      <message>Некорректное значение для параметра substring. Убедитесь, что подстрока не пуста и соответствует ожидаемому формату.</message>
+                    </error>
 
 components:
   schemas:
@@ -224,6 +495,18 @@ components:
         - color
         - speaking
 
+    Dragons:
+      type: object
+      xml:
+        name: dragons
+      properties:
+        dragon:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dragon'
+      required:
+        - dragon
+
     Coordinates:
       type: object
       xml:
@@ -232,19 +515,11 @@ components:
         x:
           type: integer
           maximum: 411
-          description: Поле не может быть null и должно быть меньше или равно 411.
-          xml:
-            attribute: true
+          description: Поле не может быть null.
         y:
           type: number
-          format: double
-          minimum: -296
-          description: Поле не может быть null и должно быть больше -296.
-          xml:
-            attribute: true
-      required:
-        - x
-        - y
+          format: float
+          description: Поле не может быть null.
 
     DragonHead:
       type: object
@@ -253,17 +528,27 @@ components:
       properties:
         eyesCount:
           type: number
-          format: double
-          nullable: true
-          xml:
-            attribute: true
+          format: float
+          description: Количество глаз должно быть больше 0.
 
     Color:
       type: string
       enum:
         - RED
-        - BLACK
         - BLUE
+        - GREEN
+        - BLACK
         - WHITE
+      description: Цвет дракона
+
+    ErrorResponse:
+      type: object
       xml:
-        name: color
+        name: error
+      properties:
+        code:
+          type: integer
+          description: Код ошибки
+        message:
+          type: string
+          description: Описание ошибки
