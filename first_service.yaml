@@ -125,20 +125,19 @@ paths:
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidFilter:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Неправильный формат фильтра. Проверьте корректность параметра filter.</message>
-                    </error>
-                invalidSort:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Неправильный формат сортировки. Проверьте корректность параметра sort.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
     post:
       summary: Создать новый объект Dragon
@@ -156,24 +155,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/Dragon'
         '400':
-          description: Ошибка в переданных данных (нарушены ограничения целостности). Убедитесь, что все обязательные поля заполнены корректно.
+          description: Не были переданы все необходимые параметры в теле запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                missingField:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Отсутствует обязательное поле. Проверьте все обязательные поля в запросе.</message>
-                    </error>
-                invalidValue:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Некорректное значение одного из полей. Убедитесь, что все значения соответствуют ожидаемым типам и ограничениям.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
   /dragons/{id}:
     get:
@@ -192,19 +190,24 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Dragon'
-        '404':
-          description: Объект Dragon не найден по указанному ID.
+        '400':
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                notFound:
-                  value: |
-                    <error>
-                      <code>404</code>
-                      <message>Дракон с указанным ID не найден.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
     put:
       summary: Обновить объект Dragon по ID
@@ -229,37 +232,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Dragon'
         '400':
-          description: Ошибка в переданных данных (нарушены ограничения целостности). Проверьте значения всех полей.
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidField:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Некорректные данные для обновления. Проверьте все поля и их значения.</message>
-                    </error>
-                missingField:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Отсутствует обязательное поле в запросе на обновление.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
         '404':
-          description: Объект Dragon не найден по указанному ID.
+          description: Ресурс не найден
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                notFound:
-                  value: |
-                    <error>
-                      <code>404</code>
-                      <message>Дракон с указанным ID не найден.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
+
 
     delete:
       summary: Удалить объект Dragon по ID
@@ -273,19 +263,24 @@ paths:
       responses:
         '204':
           description: Объект Dragon успешно удален
-        '404':
-          description: Объект Dragon не найден по указанному ID.
+        '400':
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                notFound:
-                  value: |
-                    <error>
-                      <code>404</code>
-                      <message>Дракон с указанным ID не найден для удаления.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
   /dragons/count:
     get:
@@ -318,18 +313,23 @@ paths:
                       <count>5</count>
                     </dragonCount>
         '400':
-          description: Неправильное значение параметра eyesCount.
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidEyesCount:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Некорректное значение для параметра eyesCount. Убедитесь, что значение соответствует ожидаемому формату.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
   /dragons/countByColor:
     get:
@@ -362,18 +362,23 @@ paths:
                       <count>3</count>
                     </dragonCount>
         '400':
-          description: Неправильное значение параметра color.
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidColor:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Некорректное значение для параметра color. Убедитесь, что значение соответствует одному из допустимых цветов.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
   /dragons/searchByName:
     get:
@@ -431,18 +436,23 @@ paths:
                       </dragon>
                     </dragons>
         '400':
-          description: Неправильное значение параметра substring.
+          description: Не правильные параметры запроса
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidSubstring:
-                  value: |
-                    <error>
-                      <code>400</code>
-                      <message>Некорректное значение для параметра substring. Убедитесь, что подстрока не пуста и соответствует ожидаемому формату.</message>
-                    </error>
+                $ref: '#/components/schemas/ErrorIQP'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorDefault'
+        '500':
+          description: Ошибка на стороне сервера
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorISE'
 
 components:
   schemas:
@@ -543,6 +553,10 @@ components:
 
     ErrorResponse:
       type: object
+      required:
+        - code
+        - message
+        - time
       xml:
         name: error
       properties:
@@ -552,3 +566,82 @@ components:
         message:
           type: string
           description: Описание ошибки
+        time:
+          type: string
+          example: "2023-09-12T00:00:00Z"
+    ErrorIQP:
+      type: object
+      required:
+        - code
+        - message
+        - time
+      xml:
+        name: error
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 400
+        message:
+          type: string
+          example: Invalid query param
+        time:
+          type: string
+          example: "2023-09-12T00:00:00Z"
+    ErrorISE:
+      type: object
+      required:
+        - code
+        - message
+        - time
+      xml:
+        name: error
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 500
+        message:
+          type: string
+          example: Internal server error
+        time:
+          type: string
+          example: "2023-09-12T00:00:00Z"
+    ErrorII:
+      type: object
+      required:
+        - code
+        - message
+        - time
+      xml:
+        name: error
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 400
+        message:
+          type: string
+          example: Invalid input
+        time:
+          type: string
+          example: "2023-09-12T00:00:00Z"
+    ErrorDefault:
+      type: object
+      required:
+        - code
+        - message
+        - time
+      xml:
+        name: error
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 404
+        message:
+          type: string
+          example: Not Found
+        time:
+          type: string
+          example: "2023-09-12T00:00:00Z"

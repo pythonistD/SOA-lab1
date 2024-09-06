@@ -22,10 +22,22 @@ paths:
                 $ref: '#/components/schemas/Dragon'
         '400':
           description: Bag request
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorIQP'
         '404':
           description: Not found
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorDefault'
         '500':
           description: Internal server error
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorISE'
                 
   /killer/team/{team-id}/move-to-cave/{cave-id}:
     get:
@@ -56,10 +68,22 @@ paths:
                   name: result
         '400':
           description: Bag request
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorIQP'
         '404':
           description: Not found
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorDefault'
         '500':
           description: Internal server error
+          content:
+            application/xml:
+              schema:
+                $ref: './first_service.yaml#/components/schemas/ErrorISE'
 
 components:
   schemas:
