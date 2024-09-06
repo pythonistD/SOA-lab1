@@ -19,7 +19,7 @@ paths:
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/Dragon'
+                $ref: './first_service.yaml#/components/schemas/Dragon'
         '400':
           description: Bag request
           content:
@@ -55,7 +55,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: Список объектов Dragon
+          description: Статус операции по убийству дракона
           content:
             application/xml:
               schema:
@@ -63,7 +63,8 @@ paths:
                 properties:
                   status:
                     type: string
-                    description: Количество объектов Dragon
+                    example: Дракон убит
+                    description: Результат операции
                 xml:
                   name: result
         '400':
@@ -87,101 +88,6 @@ paths:
 
 components:
   schemas:
-    Dragon:
-      type: object
-      xml:
-        name: dragon
-      properties:
-        id:
-          type: integer
-          minimum: 1
-          readOnly: true
-          description: Значение должно генерироваться автоматически, уникально и больше 0.
-          xml:
-            attribute: true
-        name:
-          type: string
-          minLength: 1
-          description: Поле не может быть null или пустым.
-        coordinates:
-          allOf:
-            - $ref: '#/components/schemas/Coordinates'
-            - description: Поле не может быть null.
-        creationDate:
-          type: string
-          format: date
-          readOnly: true
-          description: Дата создания должна генерироваться автоматически.
-        age:
-          type: integer
-          minimum: 1
-          nullable: true
-          description: Возраст должен быть больше 0 или null.
-        wingspan:
-          type: integer
-          minimum: 1
-          nullable: true
-          description: Размах крыльев должен быть больше 0 или null.
-        speaking:
-          type: boolean
-        color:
-          allOf:
-            - $ref: '#/components/schemas/Color'
-            - description: Поле не может быть null.
-        head:
-          $ref: '#/components/schemas/DragonHead'
-      required:
-        - id
-        - name
-        - coordinates
-        - creationDate
-        - color
-        - speaking
-
-    Coordinates:
-      type: object
-      xml:
-        name: coordinates
-      properties:
-        x:
-          type: integer
-          maximum: 411
-          description: Поле не может быть null и должно быть меньше или равно 411.
-          xml:
-            attribute: true
-        y:
-          type: number
-          format: double
-          minimum: -296
-          description: Поле не может быть null и должно быть больше -296.
-          xml:
-            attribute: true
-      required:
-        - x
-        - y
-
-    DragonHead:
-      type: object
-      xml:
-        name: head
-      properties:
-        eyesCount:
-          type: number
-          format: double
-          nullable: true
-          xml:
-            attribute: true
-
-    Color:
-      type: string
-      enum:
-        - RED
-        - BLACK
-        - BLUE
-        - WHITE
-      xml:
-        name: color
-        
     CaveSize:
       type: string
       enum:
