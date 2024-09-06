@@ -315,7 +315,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorISE'
 
-  /dragons/countByColor:
+  /dragons/count/{color}:
     get:
       summary: Вернуть количество объектов Dragon с цветом больше заданного
       parameters:
@@ -364,7 +364,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorISE'
 
-  /dragons/searchByName:
+  /dragons/search/{substring}:
     get:
       summary: Вернуть массив объектов Dragon, имя которых содержит заданную подстроку
       parameters:
@@ -438,7 +438,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorISE'
 
-  /dragonHunter:
+  /hunters:
     post:
       summary: Добавить нового охотника на драконов
       requestBody:
@@ -518,11 +518,6 @@ paths:
         '200':
           description: Список охотников
           content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DragonHunter'
             application/xml:
               schema:
                 type: array
@@ -546,7 +541,7 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/ErrorISE'
-  /dragonHunter/{id}:
+  /hunters/{id}:
     get:
       summary: Получить охотника по ИД
       parameters:
@@ -559,9 +554,6 @@ paths:
         '200':
           description: Охотник найден
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DragonHunter'
             application/xml:
               schema:
                 $ref: '#/components/schemas/DragonHunter'
@@ -594,9 +586,6 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DragonHunter'
           application/xml:
             schema:
               $ref: '#/components/schemas/DragonHunter'
